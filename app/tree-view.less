@@ -1,0 +1,36 @@
+.tree-view {
+	.title {
+		font-weight: bold;
+	}
+
+	.node-link {
+		cursor: pointer;
+	}
+}
+
+.node-enter, .node-leave {
+	display: block;
+	overflow: hidden;
+}
+
+.node-enter {
+	max-height: 0;
+}
+
+.node-enter.node-enter-active {
+	max-height: 500px;
+	transition: max-height 250ms ease-in;
+}
+
+.node-leave {
+	max-height: 500px;
+}
+
+.node-leave.node-leave-active {
+	max-height: 0px;
+	transition: max-height 250ms ease-out;
+}
+
+.node-row {
+	border-top: 1px solid #f0f0f0;
+}
