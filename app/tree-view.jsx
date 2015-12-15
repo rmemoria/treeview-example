@@ -71,7 +71,7 @@ export default class TreeView extends React.Component {
 	createNodesView() {
 		const self = this;
 		// get the item being expanded (for animation)
-		const expitem = this.state && this.state.expitem;
+		const expitem = this.state.expitem;
 
 		// recursive function to create the expanded tree in a list
 		const mountList = function(nlist, level, parentkey) {
@@ -106,7 +106,7 @@ export default class TreeView extends React.Component {
 				);
 		};
 
-		return mountList(this.getRoots(), 0, false);
+		return mountList(this.state.root, 0, false);
 	}
 
 	resolveIcon(node) {
@@ -143,11 +143,12 @@ export default class TreeView extends React.Component {
 		const p = this.props;
 
 		// get the node content
-		const func = p.innerNode;
-
-		const content = func ? func(node.item) : node.item;
+		const content = p.innerRender ? p.innerRender(node.item) : node.item;
 
 		const icon = this.resolveIcon(node);
+
+		const waitIcon = node.state === 'expanding' ?
+			<div className="fa fa-refresh fa-fw fa-spin" /> : null;
 
 		// the content
 		const nodeIcon = node.leaf ?
@@ -159,11 +160,12 @@ export default class TreeView extends React.Component {
 		const nodeRow = (
 			<div key={key} className="node" style={{ marginLeft: (level * p.indent) + 'px' }}>
 				{nodeIcon}
+				{waitIcon}
 				{content}
 			</div>
 			);
 
-		return p.outerNode ? p.outerNode(nodeRow, node.item) : nodeRow;
+		return p.outerRender ? p.outerRender(nodeRow, node.item) : nodeRow;
 	}
 
 	/**
@@ -199,6 +201,7 @@ export default class TreeView extends React.Component {
 		// children are not loaded ?
 		if (!node.children) {
 			node.state = 'expanding';
+			this.forceUpdate();
 
 			// load the children
 			const self = this;
@@ -228,29 +231,17 @@ export default class TreeView extends React.Component {
 	}
 
 	/**
-	 * Return the root list of nodes
-	 * @return {array} Array of objects with information about the nodes
-	 */
-	getRoots() {
-		if (this.props.root) {
-			return this.props.root;
-		}
-
-		return this.state ? this.state.root : null;
-	}
-
-	/**
 	 * Render the tree
 	 * @return {[type]} [description]
 	 */
 	render() {
-		const root = this.getRoots();
+		const root = this.state ? this.state.root : null;
 
 		if (!root) {
 			const self = this;
 			this.loadNodes()
 				.then(res => self.setState({ root: res }));
-			return null;
+			return <i className="fa fa-refresh fa-fw fa-spin" />;
 		}
 
 		return <div className="tree-view">{this.createNodesView(root)}</div>;
@@ -262,14 +253,16 @@ TreeView.propTypes = {
 	root: React.PropTypes.array,
 	// called to load the nodes in the format function(item): promise
 	onGetNodes: React.PropTypes.func,
-	// called to render the div area that will host the node content
-	// in the format function(item): string | React component
-	innerNode: React.PropTypes.func,
-	outerNode: React.PropTypes.func,
-	// an optional title to be displayed on the top of the treeview
+	// called to render the content of the node, beside the button
+	// it will return the string or component to be displayed
+	innerRender: React.PropTypes.func,
+	// (optional) called to wrap the whole node inside another component
+	outerRender: React.PropTypes.func,
+	// optional title to be displayed on the top of the treeview
 	title: React.PropTypes.any,
 	// opitional. Check if node has children or is a leaf node
 	checkLeaf: React.PropTypes.func,
+	// name of fontawesome icon or function to return a name
 	iconPlus: React.PropTypes.any,
 	iconMinus: React.PropTypes.any,
 	iconLeaf: React.PropTypes.any,

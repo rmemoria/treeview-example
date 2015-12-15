@@ -11,6 +11,11 @@ import 'font-awesome-webpack';
 
 class MainPage extends React.Component {
 
+	constructor(props) {
+		super(props);
+		this.getAsyncNodes = this.getAsyncNodes.bind(this);
+	}
+
 	/**
 	 * Return the nodes to be displayed in the tree view. This function is initially called
 	 * if the root property is not specified in the tree view
@@ -30,6 +35,14 @@ class MainPage extends React.Component {
 		}
 
 		return lst;
+	}
+
+
+	getAsyncNodes(parent) {
+		const self = this;
+		return new Promise(resolve => {
+			setTimeout(() => resolve(self.getNodes(parent)), 1000);
+		});
 	}
 
 	/**
@@ -83,14 +96,20 @@ class MainPage extends React.Component {
 			<div className="container">
 				<h2>{'Simple Tree View'}</h2>
 				<TreeView onGetNodes={this.getNodes}
-					innerNode={this.innerNode}
+					innerRender={this.innerNode}
 					checkLeaf={this.checkLeaf} />
 
 				<h2>{'Multiple columns (using Bootstrap grid system)'}</h2>
 				<TreeView onGetNodes={this.getNodes}
-					innerNode={this.innerNode}
+					innerRender={this.innerNode}
 					checkLeaf={this.checkLeaf}
-					outerNode={this.outerNode} />
+					outerRender={this.outerNode} />
+
+				<h2>{'Async loading'}</h2>
+				<TreeView onGetNodes={this.getAsyncNodes}
+					innerRender={this.innerNode}
+					outerRender={this.outerNode}
+					checkLeaf={this.checkLeaf} />
 			</div>
 			);
 	}
