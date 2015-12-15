@@ -5,6 +5,10 @@ Example of a tree view component using [React.js](https://facebook.github.io/rea
 
 Details about it can be found in [this article](http://rmemoria.blogspot.com.br/2015/12/creating-tree-view-using-reactjs.html).
 
+A running example can be seen at
+
+http://www.rmemoria.com/download/blog/examples/treeview/index.html
+
 ## Dependencies
 
 TreeView component has the following dependencies:
